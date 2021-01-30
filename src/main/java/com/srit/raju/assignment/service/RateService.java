@@ -12,15 +12,13 @@ import static com.srit.raju.assignment.constant.RateConstants.SURCHARGE_URL;
 
 @Service
 public class RateService {
-    
     @Autowired
-    RateDao rateDao;
-
+    private RateDao rateDao;
     @Autowired
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-    public void addRate(Rate rate){
-        rateDao.save(rate);
+    public Rate addRate(Rate rate){
+        return rateDao.save(rate);
     }
 
     public Optional<RateWithSurcharge> searchRate(Long rateId) {
@@ -33,12 +31,13 @@ public class RateService {
         return Optional.empty();
     }
 
-    public void updateRate(Long rateId, Rate rate) {
+    public Optional<Rate> updateRate(Long rateId, Rate rate) {
         Optional<Rate> rateById = rateDao.findById(rateId);
         if(rateById.isPresent()){
             rate.setId(rateById.get().getId());
-            rateDao.save(rate);
+            return Optional.of(rateDao.save(rate));
         }
+        return Optional.empty();
     }
 
     public void deleteRate(Long rateId) {

@@ -21,13 +21,13 @@ public class RateController {
     }
 
     @PostMapping
-    public void addRate(@RequestBody Rate rate){
-        rateService.addRate(rate);
+    public Rate addRate(@RequestBody Rate rate){
+        return rateService.addRate(rate);
     }
 
     @PutMapping("{rateId}")
-    public void updateRate(@PathVariable Long rateId, @RequestBody Rate rate){
-        rateService.updateRate(rateId, rate);
+    public Optional<Rate> updateRate(@PathVariable Long rateId, @RequestBody Rate rate){
+        return rateService.updateRate(rateId, rate);
     }
 
     @DeleteMapping("{rateId}")

@@ -1,14 +1,18 @@
 package com.srit.raju.assignment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.srit.raju.assignment.model.Rate;
 import com.srit.raju.assignment.model.Surcharge;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class RateWithSurcharge {
     private Long id;
     private String description;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date effectiveDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date expirationDate;
     private Integer amount;
     private Surcharge surcharge;
@@ -83,5 +87,18 @@ public class RateWithSurcharge {
                 ", amount=" + amount +
                 ", surcharge=" + surcharge +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RateWithSurcharge that = (RateWithSurcharge) o;
+        return Objects.equals(id, that.id) && Objects.equals(description, that.description) && Objects.equals(effectiveDate, that.effectiveDate) && Objects.equals(expirationDate, that.expirationDate) && Objects.equals(amount, that.amount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description, effectiveDate, expirationDate, amount);
     }
 }

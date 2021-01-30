@@ -4,6 +4,14 @@ public class Surcharge {
     private int surchargeRate;
     private String surchargeDescription;
 
+    public Surcharge() {
+    }
+
+    public Surcharge(int surchargeRate, String surchargeDescription) {
+        this.surchargeRate = surchargeRate;
+        this.surchargeDescription = surchargeDescription;
+    }
+
     public int getSurchargeRate() {
         return surchargeRate;
     }

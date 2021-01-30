@@ -1,5 +1,6 @@
 package com.srit.raju.assignment.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -18,15 +19,28 @@ public class Rate {
 
     @Column(name = "RateEffectiveDate", nullable = false)
     @NonNull
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date effectiveDate;
 
     @Column(name = "RateExpirationDate", nullable = false)
     @NonNull
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date expirationDate;
 
     @Column(name = "Amount", nullable = false)
     @NonNull
     private Integer amount;
+
+    public Rate() {
+    }
+
+    public Rate(Long id, String description, Date effectiveDate, Date expirationDate, Integer amount) {
+        this.id = id;
+        this.description = description;
+        this.effectiveDate = effectiveDate;
+        this.expirationDate = expirationDate;
+        this.amount = amount;
+    }
 
     public Long getId() {
         return id;
@@ -78,4 +92,5 @@ public class Rate {
                 ", amount=" + amount +
                 '}';
     }
+
 }
