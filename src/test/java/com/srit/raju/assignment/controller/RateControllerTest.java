@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,7 +23,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.text.DateFormat;
@@ -40,16 +40,19 @@ public class RateControllerTest {
     @MockBean
     private RateService rateService;
 
+    private String TOKEN = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyYWp1IiwiZXhwIjoxNjEyODYxNjU3fQ.tR7BtKe17uQy64P4IAsBWz1LQYcRTMFDVIwj_UYXPkQRMHllbJf5XGnTsZv2dLqag7LrOKaorCtbb1dsCdUJsw";
+
     @Test
     public void testSearchRate() throws Exception {
         RateWithSurcharge mockRateWithSurcharge = getMockRateWithSurcharge();
-        Mockito.when(rateService.searchRate(Mockito.anyLong())).thenReturn(Optional.of(mockRateWithSurcharge));
+        Mockito.when(rateService.searchRate(anyLong())).thenReturn(new ResponseEntity<>(mockRateWithSurcharge, HttpStatus.OK));
 
         String URI = "/api/rate/1";
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(MediaType.APPLICATION_JSON);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(MediaType.APPLICATION_JSON).header("Authorization", TOKEN);
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         String expectedJson = this.mapToJson(mockRateWithSurcharge);
+        int status = result.getResponse().getStatus();
         String outputInJson = result.getResponse().getContentAsString();
         assertThat(outputInJson).isEqualTo(expectedJson);
     }
@@ -57,14 +60,15 @@ public class RateControllerTest {
     @Test
     public void testAddRate() throws Exception {
         Rate mockRate = getMockRate();
-        Mockito.when(rateService.addRate(Mockito.any(Rate.class))).thenReturn(mockRate);
+        Mockito.when(rateService.addRate(Mockito.any(Rate.class))).thenReturn(new ResponseEntity<>(mockRate, HttpStatus.OK));
 
         String inputInJson = this.mapToJson(mockRate);
         String URI = "/api/rate";
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post(URI)
                 .accept(MediaType.APPLICATION_JSON).content(inputInJson)
-                .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", TOKEN);;
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         MockHttpServletResponse response = result.getResponse();
@@ -77,14 +81,15 @@ public class RateControllerTest {
     @Test
     public void testUpdateRate() throws Exception {
         Rate mockRate = getMockRate();
-        Mockito.when(rateService.updateRate(anyLong(), Mockito.any(Rate.class))).thenReturn(Optional.of(mockRate));
+        Mockito.when(rateService.updateRate(anyLong(), Mockito.any(Rate.class))).thenReturn(new ResponseEntity<>(mockRate, HttpStatus.OK));
 
         String inputInJson = this.mapToJson(mockRate);
         String URI = "/api/rate/1";
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .put(URI)
                 .accept(MediaType.APPLICATION_JSON).content(inputInJson)
-                .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", TOKEN);;
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         MockHttpServletResponse response = result.getResponse();
@@ -97,7 +102,7 @@ public class RateControllerTest {
     @Test
     public void testDeleteRate() throws Exception {
         String URI = "/api/rate/1";
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.delete(URI);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.delete(URI).header("Authorization", TOKEN);;
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         MockHttpServletResponse response = result.getResponse();
         assertEquals(HttpStatus.OK.value(), response.getStatus());
