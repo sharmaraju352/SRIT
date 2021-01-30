@@ -6,9 +6,11 @@ import com.srit.raju.assignment.dao.RateDao;
 import com.srit.raju.assignment.dto.RateWithSurcharge;
 import com.srit.raju.assignment.model.Rate;
 import com.srit.raju.assignment.model.Surcharge;
+import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,11 @@ public class RateService {
     @HystrixCommand(fallbackMethod = "fallbackMethod")
     public ResponseEntity<Object> addRate(Rate rate){
         logger.debug("Adding rate "+rate);
-        return new ResponseEntity<>(rateDao.save(rate), HttpStatus.OK);
+        try{
+            return new ResponseEntity<>(rateDao.save(rate), HttpStatus.OK);
+        }catch (DataIntegrityViolationException de){
+            return new ResponseEntity<>("Internal server error. Please contact admin", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @HystrixCommand(fallbackMethod = "fallbackMethod",
@@ -46,7 +52,7 @@ public class RateService {
             RateWithSurcharge rateWithSurcharge = new RateWithSurcharge(rate.get(), surcharge);
             return new ResponseEntity<>(Optional.of(rateWithSurcharge), HttpStatus.OK);
         }
-        return new ResponseEntity<>("Requested rate not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("RateId not found in RMS", HttpStatus.NOT_FOUND);
     }
 
     @HystrixCommand(fallbackMethod = "fallbackMethod")
@@ -57,9 +63,13 @@ public class RateService {
             logger.info("Rate with id "+ rateId +"found in DB");
             rate.setId(rateById.get().getId());
             logger.debug("Updating rate ", rate);
-            return new ResponseEntity<>(Optional.of(rateDao.save(rate)), HttpStatus.OK);
+            try{
+                return new ResponseEntity<>(Optional.of(rateDao.save(rate)), HttpStatus.OK);
+            }catch (DataIntegrityViolationException de){
+                return new ResponseEntity<>("Internal server error. Please contact admin", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
-        return new ResponseEntity<>("Rate not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("RateId not found in RMS", HttpStatus.NOT_FOUND);
     }
 
     @HystrixCommand(fallbackMethod = "fallbackMethod")
@@ -72,7 +82,7 @@ public class RateService {
             rateDao.deleteById(rateId);
             return new ResponseEntity<>(true, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Rate not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("RateId not found in RMS", HttpStatus.NOT_FOUND);
     }
 
     // Fallback methods
